@@ -1,0 +1,17 @@
+{
+  "name": "huffman",
+  "version": "1.0.0",
+  "description": "Huffman encoder and decoder for js",
+  "main": "src/index.js",
+  "scripts": {
+    "test": ""
+  },
+  "keywords": [
+    "huffman"
+  ],
+  "author": "V.J.M. Corbee",
+  "license": "MIT",
+  "devDependencies": {
+    "parcel": "^2.0.0-beta.2"
+  }
+}
