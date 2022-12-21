@@ -342,32 +342,44 @@ const toArrayBuffer = (data, enc_table) => {
   return buffer
 }
 
-const freq_table = {}
+const createFrequentieTable = (input) => {
+  const freq_table = {}
 
-for (let i = 0, l = text.length; i < l; i++) {
-  const char = text.charAt(i)
+  for (let i = 0, l = input.length; i < l; i++) {
+    const char = input.charAt(i)
 
-  if (freq_table[char] !== undefined) {
-    freq_table[char]++
-  } else {
-    freq_table[char] = 1
+    if (freq_table[char] !== undefined) {
+      freq_table[char]++
+    } else {
+      freq_table[char] = 1
+    }
   }
+
+  return freq_table
 }
 
-const tree = createHuffmanTree(Object.entries(freq_table).sort((a, b) => b[1] - a[1]))
-const enc_table = Object.keys(freq_table).reduce((acc, char) => {
-  acc[char] = getEncoding(tree, char)
+const encode = (input) => {
+  const freq_table = createFrequentieTable(input)
+  const tree = createHuffmanTree(Object.entries(freq_table).sort((a, b) => b[1] - a[1]))
+  const enc_table = Object.keys(freq_table).reduce((acc, char) => {
+    acc[char] = getEncoding(tree, char)
 
-  return acc
-}, {})
+    return acc
+  }, {})
 
-const encoded_data = text
-  .split('')
-  .map(char => enc_table[char])
-  .flat()
-const buffer = toArrayBuffer([...encoded_data], enc_table)
+  const encoded_data = input
+    .split('')
+    .map(char => enc_table[char])
+    .flat()
 
-const result = decode(buffer).join('')
+  return toArrayBuffer([...encoded_data], enc_table)
+}
+
+const encodedData = encode(text)
+
+const result = decode(encodedData).join('')
+
+console.log(encodedData.byteLength)
 
 console.log(result, result.length)
 
