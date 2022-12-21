@@ -11,7 +11,5 @@
   ],
   "author": "V.J.M. Corbee",
   "license": "MIT",
-  "devDependencies": {
-    "parcel": "^2.0.0-beta.2"
-  }
+  "devDependencies": {}
 }
