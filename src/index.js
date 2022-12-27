@@ -263,7 +263,8 @@ const createFrequentieTable = (input) => {
 
 const toArrayBuffer = (data, encodingTable) => {
   /* Two bytes for the length of the encoding table, four bytes for the bit count of the encoded data  */
-  const LENGTH_HEADER_OFFSET = 6
+  const BYTE_COUNT_LENGTH_ENCODING_TABLE = 2
+  const BYTE_COUNT_LENGTH_ENCODED_DATA = 4
 
   let lengthEncodingTable = 0
 
@@ -284,54 +285,54 @@ const toArrayBuffer = (data, encodingTable) => {
   const byteCount = getByteCount(bitCount)
   const padCountEncodedData = bitCount % 8
 
-  const binaryWriter = new BinaryWriter(byteCount + LENGTH_HEADER_OFFSET + lengthEncodingTable)
+  const binaryWriter = new BinaryWriter(byteCount + BYTE_COUNT_LENGTH_ENCODING_TABLE + BYTE_COUNT_LENGTH_ENCODED_DATA + lengthEncodingTable)
 
-  const buffer = new ArrayBuffer(byteCount + LENGTH_HEADER_OFFSET + lengthEncodingTable)
-  const dataView = new DataView(buffer)
+  // const buffer = new ArrayBuffer(byteCount + LENGTH_HEADER_OFFSET + lengthEncodingTable)
+  // const dataView = new DataView(buffer)
 
-  let offsetAdjustment = 0
+  // let offsetAdjustment = 0
 
   binaryWriter.setUint16(lengthEncodingTable)
 
-  dataView.setUint16(0, lengthEncodingTable)
+  // dataView.setUint16(0, lengthEncodingTable)
 
-  entries.forEach(([length, charCode, code], i) => {
-    const offset = i * 3 + 2
+  entries.forEach(([length, charCode, code]) => {
+    // const offset = i * 3 + 2
 
     binaryWriter.setUint8(length)
     binaryWriter.setUint8(charCode)
 
-    dataView.setUint8(offset + offsetAdjustment, length)
-    dataView.setUint8(offset + 1 + offsetAdjustment, charCode)
+    // dataView.setUint8(offset + offsetAdjustment, length)
+    // dataView.setUint8(offset + 1 + offsetAdjustment, charCode)
 
     if (length > 8) {
       binaryWriter.setUint16(code)
-      dataView.setUint16(offset + 2 + offsetAdjustment, code)
+      // dataView.setUint16(offset + 2 + offsetAdjustment, code)
 
-      offsetAdjustment++
+      // offsetAdjustment++
     } else {
       binaryWriter.setUint8(code)
-      dataView.setUint8(offset + 2 + offsetAdjustment, code)
+      // dataView.setUint8(offset + 2 + offsetAdjustment, code)
     }
   })
 
   let chunk = 0
-  let offsetChunk = LENGTH_HEADER_OFFSET + lengthEncodingTable
+  // let offsetChunk = LENGTH_HEADER_OFFSET + lengthEncodingTable
   let index = 0
 
   // Store encoded length as uint32
 
   binaryWriter.setUint32(bitCount)
 
-  dataView.setUint32(lengthEncodingTable + 2, bitCount)
+  // dataView.setUint32(lengthEncodingTable + 2, bitCount)
 
   while (index < bitCount) {
     if (index % 8 === 0 && index !== 0) {
       binaryWriter.setUint8(chunk)
 
-      dataView.setUint8(offsetChunk, chunk)
+      // dataView.setUint8(offsetChunk, chunk)
 
-      offsetChunk++
+      // offsetChunk++
 
       chunk = 0
     }
@@ -344,13 +345,13 @@ const toArrayBuffer = (data, encodingTable) => {
   }
 
   if (chunk) {
-    for (let pad = 0; pad <= padCountEncodedData; pad++) {
+    for (let pad = 0; pad < padCountEncodedData; pad++) {
       chunk = chunk << 1
     }
 
     // const bitCountChunk = getBitCount(chunk)
 
-    // Pad last chunk if not 8 bits
+    // /* Pad last chunk if not 8 bits */
     // let padding = 8 - bitCountChunk - (bitCount - (8 * (offsetChunk - LENGTH_HEADER_OFFSET - lengthEncodingTable) + bitCountChunk))
 
     // while (padding > 0) {
@@ -361,7 +362,7 @@ const toArrayBuffer = (data, encodingTable) => {
 
     binaryWriter.setUint8(chunk)
 
-    dataView.setUint8(offsetChunk, chunk)
+    // dataView.setUint8(offsetChunk, chunk)
   }
 
   return binaryWriter.buffer
@@ -435,13 +436,11 @@ const decode = buffer => {
 
   console.log(binaryReader.getBytePosition())
 
-  // binaryReader.seek(headerLength + 3)
+  binaryReader.seek(headerLength + 2)
 
   /* These 4 bytes are the length of the encoded data */
 
   const length = binaryReader.getUint32()
-
-  console.log(length, headerLength)
 
   let bitsRead = 0
 
