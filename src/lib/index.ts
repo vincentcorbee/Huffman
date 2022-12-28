@@ -1,0 +1,6 @@
+export * from './create-frequentie-table'
+export * from './create-huffman-tree'
+export * from './create-encoding-table'
+export * from './encode-data'
+export * from './to-array-buffer'
+export * from './get-bit-count'
